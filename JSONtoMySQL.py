@@ -9,10 +9,12 @@ from typing import Dict, List, Tuple, Any, Optional
 
 class JSONtoMySQL:
     """
-    Handler Class
-        - database connection
-        - table creation
-        - file import logic
+    Handles the business logic for importing JSON files into MySQL.
+
+    This class manages database connections, table creation with automatic 
+    schema inference, and data insertion with transaction safety. Each instance 
+    represents a single database connection that should be closed when operations 
+    are complete.
     """
     
     def __init__(self, host: str, user: str, password: str, database: str, 
@@ -32,7 +34,6 @@ class JSONtoMySQL:
         )
         self.cursor = self.connection.cursor()
         self.log("Database connection established")
-    
     def log(self, message: str):
         """
         Send status messages to callback if provided, always print to console.
@@ -40,7 +41,6 @@ class JSONtoMySQL:
         if self.status_callback:
             self.status_callback(message)
         print(message)
-    
     def _determine_column_type(self, values: List[Any]) -> str:
         """
         Determine the most appropriate MySQL column type for a list of values.
@@ -100,7 +100,6 @@ class JSONtoMySQL:
         
         # Default fallback
         return "TEXT"
-    
     def create_table_from_json(self, table_name: str, json_data: List[Dict]) -> Tuple[bool, List[str]]:
         """
         Create MySQL table based on JSON data structure.
@@ -160,7 +159,6 @@ class JSONtoMySQL:
         
         # Return success and the column order for INSERT statements
         return True, sorted_columns
-    
     def insert_json_data(self, table_name: str, json_data: List[Dict], columns: List[str]):
         """
         Insert JSON records into the specified table.
@@ -191,7 +189,6 @@ class JSONtoMySQL:
         # Execute batch insert - more efficient than inserting one row at a time
         self.cursor.executemany(insert_sql, values)
         self.log(f"Inserted {len(values)} records into {table_name}")
-    
     def import_json_file(self, json_file_path: str) -> Tuple[bool, str]:
         """
         Import a single JSON file into a MySQL table.
@@ -255,7 +252,6 @@ class JSONtoMySQL:
             error_msg = f"ERROR importing {json_file_path}: {str(e)}"
             self.log(error_msg)
             return False, error_msg
-    
     def import_directory(self, directory_path: str) -> Dict[str, Any]:
         """
         Import all JSON files from a directory.
@@ -321,17 +317,14 @@ class JSONtoMySQL:
             'success_files': successful_imports,
             'failed_files': failed_imports
         }
-    
     def close(self):
         """Close database connection and clean up resources."""
         self.cursor.close()
         self.connection.close()
         self.log("Database connection closed")
-    
     def __enter__(self):
         """Context manager support - enables 'with' statement usage."""
         return self
-
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager support - ensures connection is closed."""
         self.close()
@@ -646,13 +639,13 @@ class ImporterGUI:
     def run_import(self):
         """
         Run the import process with progress tracking.
-        
+    
         This method runs in a background thread, so we need to be careful
         about updating the UI (must use update_idletasks).
         """
         try:
             self.log_status("Starting import process...\n")
-            
+        
             # Create importer instance with callback
             importer = JSONtoMySQL(
                 host=self.host_entry.get().strip(),
@@ -662,48 +655,74 @@ class ImporterGUI:
                 port=int(self.port_entry.get().strip()),
                 status_callback=self.log_status
             )
-            
+        
             # Get list of files for progress tracking
             directory = self.directory_var.get().strip()
             json_files = list(Path(directory).glob('*.json'))
             total_files = len(json_files)
+        
+            if total_files == 0:
+                self.log_status("No JSON files found in the selected directory")
+                importer.close()
+                return
+        
+            self.log_status(f"Found {total_files} JSON file(s) to import\n")
+        
+            # Track results manually since we're not using import_directory()
+            successful_imports = []
+            failed_imports = []
+        
+            # Import with progress updates
+            for idx, json_file in enumerate(json_files, 1):
+                success, message = importer.import_json_file(str(json_file))
             
-            if total_files > 0:
-                # Import with progress updates
-                # We'll update progress as we go
-                for idx, json_file in enumerate(json_files, 1):
-                    importer.import_json_file(str(json_file))
-                    # Update progress bar
-                    progress = (idx / total_files) * 100
-                    self.progress_bar["value"] = progress
-                    self.root.update_idletasks()
-            else:
-                importer.import_directory(directory)
+                # Track results
+                if success:
+                    successful_imports.append(json_file.name)
+                else:
+                    failed_imports.append(json_file.name)
             
-            # Get summary by re-scanning (simpler than tracking during iteration)
-            summary = importer.import_directory(directory) if total_files == 0 else None
-            
+                # Update progress bar
+                progress = (idx / total_files) * 100
+                self.progress_bar["value"] = progress
+                self.root.update_idletasks()
+        
+            # Display summary manually (mimicking what import_directory() does)
+            self.log_status("\n" + "="*60)
+            self.log_status("IMPORT SUMMARY")
+            self.log_status("="*60)
+            self.log_status(f"Total files processed: {total_files}")
+            self.log_status(f"Successfully imported: {len(successful_imports)}")
+            self.log_status(f"Failed imports: {len(failed_imports)}")
+        
+            if failed_imports:
+                self.log_status("\nFailed files:")
+                for filename in failed_imports:
+                    self.log_status(f"  - {filename}")
+        
+            self.log_status("="*60)
+        
             importer.close()
-            
+        
             # Complete progress bar
             self.progress_bar["value"] = 100
-            
+        
             messagebox.showinfo("Success", "Import process completed!\nCheck status window for details.")
-            
+        
         except mysql.connector.Error as err:
             error_msg = f"Database Error: {err}"
             self.log_status(f"\nERROR: {error_msg}")
             messagebox.showerror("Database Error", error_msg)
-            
+        
         except Exception as e:
             error_msg = f"Error: {str(e)}"
             self.log_status(f"\nERROR: {error_msg}")
             messagebox.showerror("Error", error_msg)
-            
+        
         finally:
             # Re-enable buttons
             self.execute_btn.config(state="normal")
-            self.test_conn_btn.config(state="normal")
+            self.test_conn_btn.config(state="normal")    
     
     def save_config(self):
         """Save host and port to configuration file."""
