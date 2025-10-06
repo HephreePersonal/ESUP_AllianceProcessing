@@ -1,4 +1,3 @@
-
 import mysql.connector
 import json
 import tkinter as tk
@@ -46,43 +45,71 @@ class JSONtoMySQL:
         return "JSON"  # Handle nested structures
     
     def create_table_from_json(self, table_name, json_data):
-        """Create table structure based on first JSON record"""
+        """Create table structure based on all JSON records (union of all keys)"""
         if not json_data:
             self.log(f"No data in {table_name}.json - skipping")
             return False
-        
-        first_record = json_data[0]
-        columns = []
-        
-        for key, value in first_record.items():
-            col_type = self.infer_column_type(value)
-            columns.append(f"`{key}` {col_type}")
-        
+
+        # Collect all unique keys and sort for deterministic order
+        all_keys = set()
+        for record in json_data:
+            all_keys.update(record.keys())
+        all_keys = sorted(list(all_keys))
+        self.log(f"Columns to be created for {table_name}: {all_keys}")
+
+        # Infer column types by checking all values for each key
+        column_types = {}
+        for key in all_keys:
+            values = [record.get(key) for record in json_data if key in record]
+            # Pick the most general type among all values
+            col_type = self.infer_column_type(values[0]) if values else "TEXT"
+            for v in values:
+                t = self.infer_column_type(v)
+                # If any value is TEXT or JSON, use that
+                if t == "JSON" or t == "TEXT":
+                    col_type = t
+                    break
+                # Prefer BIGINT over INT, DOUBLE over INT, etc.
+                if col_type == "INT" and t in ("BIGINT", "DOUBLE"):
+                    col_type = t
+                if col_type == "BIGINT" and t == "DOUBLE":
+                    col_type = t
+            column_types[key] = col_type
+
+        # Add the auto-increment ID as the first column
+        columns = ["id BIGINT AUTO_INCREMENT PRIMARY KEY"]
+        columns.extend([f"`{key}` {column_types[key]}" for key in all_keys])
+
         drop_sql = f"DROP TABLE IF EXISTS `{table_name}`"
         self.cursor.execute(drop_sql)
         self.log(f"Dropped table {table_name} if it existed")
-        
+
         create_sql = f"CREATE TABLE `{table_name}` ({', '.join(columns)})"
         self.cursor.execute(create_sql)
         self.connection.commit()
         self.log(f"Created table {table_name}")
+        # Save the column order for insertion
+        self._last_columns = all_keys
         return True
     
     def insert_json_data(self, table_name, json_data):
-        """Insert JSON records into table"""
+        """Insert JSON records into table, handling missing fields as NULL"""
         if not json_data:
             return
-        
-        columns = list(json_data[0].keys())
+
+        # Use the column order determined during table creation
+        columns = getattr(self, '_last_columns', sorted(list(json_data[0].keys())))
+        self.log(f"Columns used for insertion into {table_name}: {columns}")
         placeholders = ', '.join(['%s'] * len(columns))
         column_names = ', '.join([f'`{col}`' for col in columns])
-        
+
         insert_sql = f"INSERT INTO `{table_name}` ({column_names}) VALUES ({placeholders})"
-        
+
         values = []
         for record in json_data:
-            values.append(tuple(record.get(col) for col in columns))
-        
+            # Use None for missing fields
+            values.append(tuple(record.get(col, None) for col in columns))
+
         self.cursor.executemany(insert_sql, values)
         self.connection.commit()
         self.log(f"Inserted {len(values)} records into {table_name}")
