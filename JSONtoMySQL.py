@@ -1,4 +1,5 @@
-﻿import mysql.connector
+﻿import pymysql
+pymysql.install_as_MySQLdb()
 import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext, ttk
@@ -23,6 +24,7 @@ class JSONtoMySQL:
         Initialize database connection.
         """
         self.status_callback = status_callback
+        self.log(f"Using database driver: {pymysql.__name__} version {pymysql.__version__}")
         self.connection = mysql.connector.connect(
             host=host,
             user=user,
@@ -365,7 +367,6 @@ class ImporterGUI:
         
         # Initial state - disable import button
         self.update_import_button_state()
-    
     def create_connection_frame(self):
         """Create database connection input fields."""
         frame = tk.LabelFrame(self.root, text="Database Connection", padx=10, pady=10)
@@ -403,7 +404,6 @@ class ImporterGUI:
         self.database_entry = tk.Entry(frame, width=40)
         self.database_entry.grid(row=4, column=1, pady=5)
         self.database_entry.bind('<KeyRelease>', self.on_connection_field_changed)
-    
     def create_test_connection_button(self):
         """Create test connection button."""
         frame = tk.Frame(self.root)
@@ -428,7 +428,6 @@ class ImporterGUI:
             fg="gray"
         )
         self.conn_status_label.pack(pady=2)
-    
     def create_directory_frame(self):
         """Create directory selection."""
         frame = tk.LabelFrame(self.root, text="JSON Files Location", padx=10, pady=10)
@@ -439,7 +438,6 @@ class ImporterGUI:
         
         tk.Entry(frame, textvariable=self.directory_var, width=50, state="readonly").pack(side="left", padx=5)
         tk.Button(frame, text="Browse...", command=self.browse_directory, width=10).pack(side="left")
-    
     def create_progress_bar(self):
         """Create progress bar for import operations."""
         frame = tk.Frame(self.root)
@@ -455,7 +453,6 @@ class ImporterGUI:
         )
         self.progress_bar.pack(fill="x", pady=5)
         self.progress_bar["value"] = 0
-    
     def create_execute_button(self):
         """Create execute button."""
         self.execute_btn = tk.Button(
@@ -469,7 +466,6 @@ class ImporterGUI:
             state="disabled"  # Initially disabled
         )
         self.execute_btn.pack(padx=10, pady=10, fill="x")
-    
     def create_status_window(self):
         """Create status output window."""
         frame = tk.LabelFrame(self.root, text="Status", padx=10, pady=10)
@@ -477,13 +473,11 @@ class ImporterGUI:
         
         self.status_text = scrolledtext.ScrolledText(frame, height=12, state="disabled", wrap="word")
         self.status_text.pack(fill="both", expand=True)
-    
     def on_connection_field_changed(self, event=None):
         """Reset connection verification when connection fields change."""
         self.connection_verified = False
         self.conn_status_label.config(text="Connection not tested", fg="gray")
         self.update_import_button_state()
-    
     def update_import_button_state(self):
         """
         Enable/disable import button based on prerequisites.
@@ -496,7 +490,6 @@ class ImporterGUI:
             self.execute_btn.config(state="normal")
         else:
             self.execute_btn.config(state="disabled")
-    
     def test_connection(self):
         """
         Test database connection with provided credentials.
@@ -514,7 +507,6 @@ class ImporterGUI:
         # Run in thread to prevent UI blocking
         thread = threading.Thread(target=self.run_connection_test)
         thread.start()
-    
     def run_connection_test(self):
         """Execute the connection test."""
         try:
@@ -537,7 +529,7 @@ class ImporterGUI:
             # Save successful connection settings
             self.save_config()
             
-        except mysql.connector.Error as err:
+        except (mysql.connector.Error, pymysql.Error) as err:
             self.connection_verified = False
             error_msg = f"Connection failed: {err}"
             self.conn_status_label.config(text="✗ Connection failed", fg="red")
@@ -558,13 +550,11 @@ class ImporterGUI:
             # Re-enable button
             self.test_conn_btn.config(state="normal")
             self.update_import_button_state()
-    
     def browse_directory(self):
         """Open directory browser dialog."""
         directory = filedialog.askdirectory(title="Select JSON Files Directory")
         if directory:
             self.directory_var.set(directory)
-    
     def log_status(self, message: str):
         """Add message to status window."""
         self.status_text.config(state="normal")
@@ -572,7 +562,6 @@ class ImporterGUI:
         self.status_text.see("end")
         self.status_text.config(state="disabled")
         self.root.update_idletasks()
-    
     def validate_connection_inputs(self):
         """Validate connection input fields."""
         if not self.host_entry.get().strip():
@@ -604,7 +593,6 @@ class ImporterGUI:
             return False
         
         return True
-    
     def validate_import_inputs(self):
         """Validate inputs before import execution."""
         if not self.connection_verified:
@@ -616,7 +604,6 @@ class ImporterGUI:
             return False
         
         return True
-    
     def execute_import(self):
         """Execute the import process."""
         if not self.validate_import_inputs():
@@ -635,7 +622,6 @@ class ImporterGUI:
         # Run import in separate thread to prevent UI freezing
         thread = threading.Thread(target=self.run_import)
         thread.start()
-    
     def run_import(self):
         """
         Run the import process with progress tracking.
@@ -709,7 +695,7 @@ class ImporterGUI:
         
             messagebox.showinfo("Success", "Import process completed!\nCheck status window for details.")
         
-        except mysql.connector.Error as err:
+        except (mysql.connector.Error, pymysql.Error) as err:
             error_msg = f"Database Error: {err}"
             self.log_status(f"\nERROR: {error_msg}")
             messagebox.showerror("Database Error", error_msg)
@@ -723,7 +709,6 @@ class ImporterGUI:
             # Re-enable buttons
             self.execute_btn.config(state="normal")
             self.test_conn_btn.config(state="normal")    
-    
     def save_config(self):
         """Save host and port to configuration file."""
         try:
@@ -735,7 +720,6 @@ class ImporterGUI:
                 json.dump(config, f)
         except Exception as e:
             print(f"Could not save configuration: {e}")
-    
     def load_config(self):
         """Load host and port from configuration file if it exists."""
         try:

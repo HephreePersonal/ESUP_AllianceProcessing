@@ -24,6 +24,7 @@
     <Compile Include="JSONtoMySQL.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="JSONtoMySQL.spec" />
     <Content Include="README.MD" />
     <Content Include="requirements.txt" />
     <Content Include="run.bat" />
