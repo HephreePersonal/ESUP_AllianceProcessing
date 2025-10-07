@@ -1,5 +1,4 @@
-﻿import pymysql
-pymysql.install_as_MySQLdb()
+﻿import mysql.connector
 import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext, ttk
@@ -24,7 +23,6 @@ class JSONtoMySQL:
         Initialize database connection.
         """
         self.status_callback = status_callback
-        self.log(f"Using database driver: {pymysql.__name__} version {pymysql.__version__}")
         self.connection = mysql.connector.connect(
             host=host,
             user=user,
@@ -529,7 +527,7 @@ class ImporterGUI:
             # Save successful connection settings
             self.save_config()
             
-        except (mysql.connector.Error, pymysql.Error) as err:
+        except mysql.connector.Error as err:
             self.connection_verified = False
             error_msg = f"Connection failed: {err}"
             self.conn_status_label.config(text="✗ Connection failed", fg="red")
@@ -695,7 +693,7 @@ class ImporterGUI:
         
             messagebox.showinfo("Success", "Import process completed!\nCheck status window for details.")
         
-        except (mysql.connector.Error, pymysql.Error) as err:
+        except mysql.connector.Error as err:
             error_msg = f"Database Error: {err}"
             self.log_status(f"\nERROR: {error_msg}")
             messagebox.showerror("Database Error", error_msg)
