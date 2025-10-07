@@ -469,12 +469,13 @@ class ImporterGUI:
         # Export button (placeholder for future functionality)
         self.export_btn = tk.Button(
             self.root,
-            text="Export PostScript_AllianceMerge to JSON Files",
+            text="Future Enhancement: Export PostScript_AllianceMerge to JSON Files",
             command=lambda: None,  # Placeholder - no functionality yet
             bg="#2196F3",
             fg="white",
             font=("Arial", 12, "bold"),
-            height=2
+            height=2,
+            state="disabled"  # Disabled until we add this functionality
         )
         self.export_btn.pack(padx=10, pady=(0,10), fill="x")
     def create_status_window(self):
