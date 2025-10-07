@@ -452,10 +452,11 @@ class ImporterGUI:
         self.progress_bar.pack(fill="x", pady=5)
         self.progress_bar["value"] = 0
     def create_execute_button(self):
-        """Create execute button."""
+        """Create execute buttons."""
+        # Import button
         self.execute_btn = tk.Button(
             self.root,
-            text="Execute Import",
+            text="Import JSON Exception Files from EJ",
             command=self.execute_import,
             bg="#4CAF50",
             fg="white",
@@ -463,7 +464,19 @@ class ImporterGUI:
             height=2,
             state="disabled"  # Initially disabled
         )
-        self.execute_btn.pack(padx=10, pady=10, fill="x")
+        self.execute_btn.pack(padx=10, pady=(10,5), fill="x")
+
+        # Export button (placeholder for future functionality)
+        self.export_btn = tk.Button(
+            self.root,
+            text="Export PostScript_AllianceMerge to JSON Files",
+            command=lambda: None,  # Placeholder - no functionality yet
+            bg="#2196F3",
+            fg="white",
+            font=("Arial", 12, "bold"),
+            height=2
+        )
+        self.export_btn.pack(padx=10, pady=(0,10), fill="x")
     def create_status_window(self):
         """Create status output window."""
         frame = tk.LabelFrame(self.root, text="Status", padx=10, pady=10)

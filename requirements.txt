@@ -1,9 +1,1 @@
-# JSON to MySQL Importer - Required Python Packages
-# Install all requirements with: pip install -r requirements.txt
-
-# MySQL database connector
-# This is the official MySQL driver for Python, similar to how SQL Server has ODBC/OLEDB drivers
-mysql-connector-python==8.0.33
-
-# tkinter is included with Python by default, so no separate installation needed
-# If you get import errors for tkinter, you may need to reinstall Python with tkinter support
+mysql-connector-python==8.4
