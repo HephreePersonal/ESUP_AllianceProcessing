@@ -329,7 +329,6 @@ class JSONtoMySQL:
         """Context manager support - ensures connection is closed."""
         self.close()
 
-
 class ImporterGUI:
     """
     Graphical user interface for the JSON to MySQL importer.
@@ -749,7 +748,6 @@ class ImporterGUI:
                     self.port_entry.insert(0, config['port'])
         except Exception as e:
             print(f"Could not load configuration: {e}")
-
 
 if __name__ == "__main__":
     root = tk.Tk()

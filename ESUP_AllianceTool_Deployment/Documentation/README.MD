@@ -1,70 +1,59 @@
-﻿# JSON to MySQL Importer
-    A Python-based GUI application designed for SQL engineers to efficiently import JSON files into MySQL conversion databases. This tool provides automatic schema inference, transaction safety, and progress tracking—eliminating manual table creation and reducing import errors.
-## Purpose
-    This internal tool automates the tedious process of importing JSON data exports into MySQL conversion servers. It automatically analyzes JSON structure, creates appropriate table schemas, and safely imports data with full transaction support. Built by SQL engineers for SQL engineers.
-## Key Features
-    - **Zero Manual Schema Work** - Analyzes JSON and creates tables automatically
-    - **Transaction Safety** - Each file is atomic; either fully imports or rolls back completely
-    - **Pre-Flight Connection Testing** - Verify credentials before any import begins
-    - **Real-Time Progress Tracking** - Visual progress bar and detailed status logging
-    - **Smart Type Inference** - Automatically maps JSON types to optimal MySQL column types
-    - **Comprehensive Error Reporting** - Clear summaries of successful and failed imports
-    - **Configuration Memory** - Remembers host and port between sessions
-    - **Network Drive Compatible** - Works seamlessly with UNC paths
-    - **No External Dependencies for End Users** - Standalone executable requires no Python installation
-
-## System Requirements
-
-    ### For End Users (Executable)
-        - Windows 7 or newer
-        - Network access to MySQL server
-        - No Python installation required
-
-    ### For Developers (Source)
-        - Python 3.6 or higher
-        - MySQL Connector/Python 8.4
-        - Network access to MySQL server
-
-## Quick Start for Users
-
-    ### Running the Executable (Recommended)
-
-        1. Navigate to the deployment location: `\\[your-network-share]\tools\JSONtoMySQL\Executable`
-        2. Double-click `JSONtoMySQL.exe`
-        3. Enter your database credentials
-        4. Click **Test Connection** and wait for success confirmation
-        5. Click **Browse** and select your JSON files directory
-        6. Click **Execute Import**
-        7. Monitor progress and review the summary
-
-**That's it!** No Python, no package installations, no configuration files to edit.
-
+﻿## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+	# JSON to MySQL Importer
+		A Python-based GUI application designed for SQL engineers to efficiently import JSON files into MySQL conversion databases. 
+		This tool provides automatic schema inference, transaction safety, and progress tracking—eliminating manual table creation and reducing import errors.
+	## Purpose
+		This internal tool automates the tedious process of importing JSON data exports into MySQL DBs. 
+		It automatically analyzes JSON structure, creates appropriate table schemas, and safely imports data with full transaction support.
+	## Key Features
+		- **Zero Manual Schema Work** - Analyzes JSON and creates tables automatically
+		- **Transaction Safety** - Each file is atomic; either fully imports or rolls back completely
+		- **Pre-Flight Connection Testing** - Verify credentials before any import begins
+		- **Real-Time Progress Tracking** - Visual progress bar and detailed status logging
+		- **Smart Type Inference** - Automatically maps JSON types to optimal MySQL column types
+		- **Comprehensive Error Reporting** - Clear summaries of successful and failed imports
+		- **Configuration Memory** - Remembers host and port between sessions
+		- **Network Drive Compatible** - Works seamlessly with UNC paths
+		- **No External Dependencies for End Users** - Standalone executable requires no Python installation
+## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##  
+	## System Requirements
+		### For End Users (Executable)
+			- Windows 7 or newer
+			- Network access to MySQL server
+			- No Python installation required
+		### For Developers (Source)
+			- Python 3.6 or higher
+			- MySQL Connector/Python 8.4
+			- Network access to MySQL server
+## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##  
+	## Quick Start for Users
+		### Running the Executable (Recommended)
+			1. Navigate to the deployment location: `\\[your-network-share]\tools\JSONtoMySQL\Executable`
+			2. Double-click `JSONtoMySQL.exe`
+			3. Enter your database credentials
+			4. Click **Test Connection** and wait for success confirmation
+			5. Click **Browse** and select your JSON files directory
+			6. Click **Execute Import**
+			7. Monitor progress and review the summary
+				No Python, no package installations, no configuration files to edit.
 ## Installation for Developers
-
     If you need to run from source or modify the tool:
-
         ### 1. Verify Python Installation
             ```bash
             python --version
             ```
-            
             You should see Python 3.6 or higher. If not, download from [python.org](https://www.python.org/downloads/) and check "Add Python to PATH" during installation.
-
         ### 2. Install Required Packages
-
             **IMPORTANT:** You must use version 8.4 of mysql-connector-python. Newer versions (9.x) have compatibility issues with PyInstaller.
-        
             ```bash
             pip install mysql-connector-python==8.4
             ```
-            
         ### 3. Run the Application
-
             ```bash
             python JSONtoMySQL.py
             ```
-
 Or simply double-click `run.bat` in the project folder.
+
 
 ## Detailed Usage Guide
 
@@ -295,10 +284,10 @@ Each JSON file import is wrapped in a database transaction:
     ```
 
 This means:
-    - ✅ If import succeeds: table is created and populated
-    - ✅ If import fails: NO table is created, database unchanged
-    - ✅ Partial imports are impossible
-    - ✅ Database always remains in a consistent state
+    - If import succeeds: table is created and populated
+    - If import fails: NO table is created, database unchanged
+    - Partial imports are impossible
+    - Database always remains in a consistent state
 
 ### File Independence
 
@@ -310,109 +299,111 @@ Each JSON file is imported independently:
 
 ## Troubleshooting
 
-### "Connection Failed" Error
+	### "Connection Failed" Error
 
-**Symptoms:** Red X with connection error message
+		**Symptoms:** Red X with connection error message
 
-**Common Causes:**
-    - Incorrect hostname or port
-    - Wrong username or password
-    - Database doesn't exist
-    - Network connectivity issues
-    - MySQL server firewall blocking connection
+		**Common Causes:**
+			- Incorrect hostname or port
+			- Wrong username or password
+			- Database doesn't exist
+			- Network connectivity issues
+			- MySQL server firewall blocking connection
 
-**Solutions:**
-    1. Verify credentials by testing in MySQL Workbench or command line
-    2. Ensure database exists: `SHOW DATABASES;`
-    3. Check network: `ping your-mysql-server.com`
-    4. Verify port: `netstat -an | findstr 3306`
-    5. Check MySQL user permissions: `SHOW GRANTS FOR 'username'@'%';`
+		**Solutions:**
+			1. Verify credentials by testing in MySQL Workbench or command line
+			2. Ensure database exists: `SHOW DATABASES;`
+			3. Check network: `ping your-mysql-server.com`
+			4. Verify port: `netstat -an | findstr 3306`
+			5. Check MySQL user permissions: `SHOW GRANTS FOR 'username'@'%';`
 
-### "No JSON Files Found"
+	### "No JSON Files Found"
 
-**Symptoms:** Status window shows "No JSON files found in the selected directory"
+		**Symptoms:** Status window shows "No JSON files found in the selected directory"
 
-**Solutions:**
-    - Verify directory path is correct
-    - Ensure files have `.json` extension (not `.txt` or `.json.txt`)
-    - Check file permissions (can you open them in Notepad?)
-    - Verify you're looking in the right folder
+		**Solutions:**
+			- Verify directory path is correct
+			- Ensure files have `.json` extension (not `.txt` or `.json.txt`)
+			- Check file permissions (can you open them in Notepad?)
+			- Verify you're looking in the right folder
 
-### "Invalid JSON Format" Errors
+	### "Invalid JSON Format" Errors
 
-**Symptoms:** Files are skipped with "Invalid JSON format" message
+		**Symptoms:** Files are skipped with "Invalid JSON format" message
 
-**Solutions:**
-    1. Validate JSON syntax at [jsonlint.com](https://jsonlint.com)
-    2. Check for:
-       - Missing commas between fields
-       - Trailing commas after last field
-       - Unquoted keys
-       - Single quotes instead of double quotes
-       - Special characters not properly escaped
-    3. Verify file encoding is UTF-8
-    4. Open file in text editor and look for corruption
+		**Solutions:**
+			1. Validate JSON syntax at [jsonlint.com](https://jsonlint.com)
+			2. Check for:
+			   - Missing commas between fields
+			   - Trailing commas after last field
+			   - Unquoted keys
+			   - Single quotes instead of double quotes
+			   - Special characters not properly escaped
+			3. Verify file encoding is UTF-8
+			4. Open file in text editor and look for corruption
 
-### Import Button Stays Disabled
+	### Import Button Stays Disabled
 
-**Symptoms:** Cannot click Execute Import button
+		**Symptoms:** Cannot click Execute Import button
 
-**Requirements:**
-    1. Connection must be tested successfully (green checkmark)
-    2. Directory must be selected
+		**Requirements:**
+			1. Connection must be tested successfully (green checkmark)
+			2. Directory must be selected
 
-**If Test Connection succeeded but button still disabled:**
-    - Make sure you've clicked Browse and selected a folder
-    - Check that the folder path appears in the JSON Files Location field
+		**If Test Connection succeeded but button still disabled:**
+			- Make sure you've clicked Browse and selected a folder
+			- Check that the folder path appears in the JSON Files Location field
 
-### Slow Performance
+	### Slow Performance
 
-**Symptoms:** Imports taking longer than expected
+		**Symptoms:** Imports taking longer than expected
 
-**Common Causes:**
-    - Large JSON files (>100MB)
-    - Network drive instead of local drive
-    - Many small files instead of fewer large files
-    - MySQL server under heavy load
+		**Common Causes:**
+			- Large JSON files (>100MB)
+			- Network drive instead of local drive
+			- Many small files instead of fewer large files
+			- MySQL server under heavy load
 
-**What's Normal:**
-    - Local files: ~1000 records/second
-    - Network files: ~500 records/second
-    - The tool is not designed for massive datasets (>1GB)
+		**What's Normal:**
+			- Local files: ~1000 records/second
+			- Network files: ~500 records/second
+			- The tool is not designed for massive datasets (>1GB)
 
 ## Security and Privacy
 
-### What Gets Saved
+	### What Gets Saved
 
-**Saved locally** (in `importer_config.json`):
-    - Host
-    - Port
+	**Saved locally** (in `importer_config.json`):
+		- Host
+		- Port
 
-**Never saved:**
-    - Username
-    - Password
-    - Database name
+	**Never saved:**
+		- Username
+		- Password
+		- Database name
 
-### Credential Handling
+	### Credential Handling
 
-    - Credentials are validated once during Connection Test
-    - Stored only in memory during the session
-    - Cleared when application closes
-    - Never written to disk, logs, or config files
+		- Credentials are validated once during Connection Test
+		- Stored only in memory during the session
+		- Cleared when application closes
+		- Never written to disk, logs, or config files
 
-### Network Security
+	### Network Security
 
-    - All database connections use MySQL's standard authentication
-    - Connections use whatever security MySQL server requires (SSL if configured)
-    - Tool respects MySQL's user permission system
+		- All database connections use MySQL's standard authentication
+		- Connections use whatever security MySQL server requires (SSL if configured)
+		- Tool respects MySQL's user permission system
 
-### Recommended Practices
+	### Recommended Practices
 
-    1. **Use dedicated import accounts** - Don't use root or admin accounts
-    2. **Grant minimal permissions** - Only need: CREATE, DROP, INSERT, SELECT on target database
-    3. **Use staging databases** - Never point this at production
-    4. **Review before importing** - Always test connection first
-    5. **Audit imports** - Check MySQL logs if needed
+		1. **Use dedicated import accounts** - Don't use root or admin accounts
+		2. **Grant minimal permissions** - Only need: CREATE, DROP, INSERT, SELECT on target database
+		3. **Use staging databases** - Never point this at production
+		4. **Review before importing** - Always test connection first
+		5. **Audit imports** - Check MySQL logs if needed
+
+
 
 ## 📝 For Developers: Building the Executable
 
